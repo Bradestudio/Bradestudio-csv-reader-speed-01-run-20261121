@@ -1,0 +1,32 @@
+# Fast csv-reader drop-in
+
+A faster drop-in for make.fun's own csv-reader 1.0.0, for the
+[csv-reader-speed-01-run-20261121](https://make.fun/bounty/csv-reader-speed-01-run-20261121)
+bounty ("Read broken CSV files faster, 21 November 2026").
+
+`solve.js` exports `run(input)`, which returns exactly csv-reader 1.0.0's
+answer `{columns, rows, errors}` for `{text, header}` — including its broken
+row policy (stray CRs, quote junk, unterminated quotes, short/long rows).
+`main.ts` is the harness driver: it reads every case from
+`/input/cases.json`, answers each with `run`, and writes
+`/output/answers.json`.
+
+## How it is faster
+
+The reference walks one character at a time and builds every field a
+character at a time. This reader jumps with native `String.indexOf` and
+slices fields whole. A record whose first line holds no quote and no stray
+CR — the common case in the drawn sets — is split in one native
+`String.split(',')` call; quoted and broken records fall back to a per-field
+scanner that still jumps field to field. Nothing is cached across cases:
+every case is answered alone.
+
+## Layout
+
+- `solve.js` — the entry (dependency-free ES module)
+- `main.ts` — the harness driver (unchanged from the house baseline's driver)
+- `LICENSE` — MIT
+
+## License
+
+MIT — see `LICENSE`.
